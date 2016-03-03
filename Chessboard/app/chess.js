@@ -8,18 +8,23 @@ var __extends = (this && this.__extends) || function (d, b) {
 */
 var Board = (function () {
     function Board(selector) {
-        this.squares = new Array();
-        for (var i = 1; i <= 8; i++) {
-            for (var j = 1; j <= 8; j++) {
-                this.squares.push(new Square(i, j));
-            }
-        }
         this.writeBoard(selector);
     }
     ;
     Board.prototype.writeBoard = function (selector) {
         this.boardContainer = $(selector).first();
-        var newBoardElement = this.boardContainer.append("table");
+        var newBoardElement = this.boardContainer.html("<table id='chessTable'><thead id='chessHead'></thead></thead><tbody id='chessBody'></tbody><tfoot id='chessFoot'></tfoot></table>");
+        var chessBody = $('#chessBody');
+        this.squares = new Array();
+        for (var i = 8; i >= 1; i--) {
+            var rowString = "chessRow" + i;
+            chessBody.append("<tr id='" + rowString + "'></tr>");
+            for (var j = 1; j <= 8; j++) {
+                var square = new Square(i, j);
+                this.squares.push(square);
+                $('#' + rowString).append("<td id='" + square.getName() + "' data-row='" + square.row + "' data-col='" + square.column + "' class='chess-square chess-" + square.getColorName().toLocaleLowerCase() + "'></td>");
+            }
+        }
     };
     ;
     return Board;
@@ -54,8 +59,7 @@ var Piece = (function () {
         if (placedAt === void 0) { placedAt = null; }
         this.type = piceType;
         this.color = pieceColor;
-        this.placedAt;
-        placedAt;
+        this.placedAt = placedAt;
         this.moved = false;
         this.captured = false;
     }
@@ -111,6 +115,19 @@ var Square = (function () {
         this.row = row;
         this.column = column;
     }
+    Square.prototype.getLetter = function () {
+        return Columns[this.column];
+    };
+    ;
+    Square.prototype.getName = function () {
+        return this.getLetter() + this.column;
+    };
+    Square.prototype.getColor = function () {
+        return (this.row + this.column - 1) % 2;
+    };
+    Square.prototype.getColorName = function () {
+        return Color[this.getColor()];
+    };
     return Square;
 }());
 /**
@@ -118,18 +135,15 @@ var Square = (function () {
  */
 var Player = (function () {
     function Player(color) {
-        var startigRow = color + 1;
+        var startingRow = color + 1;
         this.color = color;
         this.direction = color == Color.White ? MoveDirection.Up : MoveDirection.Down;
-        this.pieces = new Array(new Tower(color, { column: Columns.A, row: startigRow }), new Tower(color, { column: Columns.H, row: startigRow }), new Knight(color, { column: Columns.B, row: startigRow }), new Knight(color, { column: Columns.G, row: startigRow }), new Bishop(color, { column: Columns.C, row: startigRow }), new Bishop(color, { column: Columns.F, row: startigRow }), new Queen(color, { column: Columns.D, row: startigRow }), new King(color, { column: Columns.E, row: startigRow })).concat(this.getStartingPawns());
+        this.pieces = new Array(new Tower(color, new Square(startingRow, Columns.A)), new Tower(color, new Square(startingRow, Columns.H)), new Knight(color, new Square(startingRow, Columns.G)), new Bishop(color, new Square(startingRow, Columns.C)), new Bishop(color, new Square(startingRow, Columns.F)), new Knight(color, new Square(startingRow, Columns.B)), new Queen(color, new Square(startingRow, Columns.D)), new King(color, new Square(startingRow, Columns.E))).concat(this.getStartingPawns());
     }
     Player.prototype.getStartingPawns = function () {
         var pawns = new Array();
         for (var i = 1; i <= 8; i++) {
-            pawns.push(new Pawn(this.color, {
-                column: i,
-                row: this.color == Color.White ? 2 : 7
-            }));
+            pawns.push(new Pawn(this.color, new Square(this.color == Color.White ? 2 : 7, i)));
         }
         return pawns;
     };

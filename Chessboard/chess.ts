@@ -6,18 +6,23 @@ class Board {
     squares: Square[];
     boardContainer: JQuery;
     constructor(selector: JQuery) {
-        this.squares = new Array<Square>();
-        for (var i = 1; i <= 8; i++) {
-            for (var j = 1; j <= 8; j++) {
-                this.squares.push(new Square(i, j));
-            }
-        }
         this.writeBoard(selector);
     };
 
     writeBoard(selector: JQuery) {
         this.boardContainer = $(selector).first();
-        let newBoardElement = this.boardContainer.append("<table id='chessTable'></table>");
+        let newBoardElement = this.boardContainer.html("<table id='chessTable'><thead id='chessHead'></thead></thead><tbody id='chessBody'></tbody><tfoot id='chessFoot'></tfoot></table>");
+        let chessBody = $('#chessBody');
+        this.squares = new Array<Square>();
+        for (var i = 8; i >= 1; i--) {
+            let rowString = "chessRow" + i;
+            chessBody.append(`<tr id='${rowString}'></tr>`);
+            for (var j = 1; j <= 8; j++) {
+                let square = new Square(i,j);
+                this.squares.push(square);
+                $('#'+rowString).append(`<td id='${square.getName()}' data-row='${square.row}' data-col='${square.column}' class='chess-square chess-${square.getColorName().toLocaleLowerCase()}'></td>`);
+            }
+        }
     };
 }
 
@@ -56,7 +61,7 @@ class Piece {
         placedAt: Square = null) {
         this.type = piceType;
         this.color = pieceColor;
-        this.placedAt: placedAt;
+        this.placedAt = placedAt;
         this.moved = false;
         this.captured = false;
     }
@@ -109,7 +114,23 @@ class Pawn extends Piece {
 class Square {
     row: number;
     column: Columns;
-
+    
+    getLetter(){
+        return Columns[this.column];
+    };
+    
+    getName() {
+        return this.getLetter() + this.column;        
+    }
+    
+    getColor(){
+        return (this.row + this.column-1) % 2
+    }
+    
+    getColorName() {
+        return Color[this.getColor()];
+    }
+    
     constructor(row: number, column: Columns) {
         this.row = row;
         this.column = column;
@@ -128,29 +149,26 @@ class Player {
 
 
     constructor(color: Color) {
-        let startigRow = color + 1;
+        let startingRow = color + 1;
 
         this.color = color;
         this.direction = color == Color.White ? MoveDirection.Up : MoveDirection.Down;
         this.pieces = new Array<Piece>(
-            new Tower(color, { column: Columns.A, row: startigRow }),
-            new Tower(color, { column: Columns.H, row: startigRow }),
-            new Knight(color, { column: Columns.B, row: startigRow }),
-            new Knight(color, { column: Columns.G, row: startigRow }),
-            new Bishop(color, { column: Columns.C, row: startigRow }),
-            new Bishop(color, { column: Columns.F, row: startigRow }),
-            new Queen(color, { column: Columns.D, row: startigRow }),
-            new King(color, { column: Columns.E, row: startigRow })
+            new Tower(color, new Square(startingRow, Columns.A)),
+            new Tower(color, new Square(startingRow, Columns.H)),
+            new Knight(color, new Square(startingRow, Columns.G )),
+            new Bishop(color, new Square(startingRow, Columns.C )),
+            new Bishop(color, new Square(startingRow, Columns.F )),
+            new Knight(color, new Square(startingRow, Columns.B )),
+            new Queen(color, new Square(startingRow, Columns.D )),
+            new King(color, new Square(startingRow, Columns.E ))
         ).concat(this.getStartingPawns());
     }
 
     private getStartingPawns(): Pawn[] {
         var pawns = new Array<Pawn>();
         for (var i = 1; i <= 8; i++) {
-            pawns.push(new Pawn(this.color, {
-                column: i,
-                row: this.color == Color.White ? 2 : 7
-            }));
+            pawns.push(new Pawn(this.color, new Square(this.color == Color.White ? 2 : 7, i)));
         }
         return pawns;
     }

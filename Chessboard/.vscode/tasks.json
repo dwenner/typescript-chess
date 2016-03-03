@@ -9,6 +9,7 @@
 // compiles based on a tsconfig.json file that is present in
 // the root of the folder open in VSCode
 
+
 {
 	"version": "0.1.0",
 
@@ -19,7 +20,7 @@
 	"isShellCommand": true,
 
 	// Show the output window only if unrecognized errors occur.
-	"showOutput": "silent",
+	"showOutput": "always",
 
 	// Tell the tsc compiler to use the tsconfig.json from the open folder.
 	"args": ["-p", "."],
@@ -30,27 +31,21 @@
 }
 
 
-// A task runner configuration for gulp. Gulp provides a less task
-// which compiles less to css.
-/*
+/**
 {
-	"version": "0.1.0",
-	"command": "gulp",
-	"isShellCommand": true,
-	"tasks": [
-		{
-			"taskName": "less",
-			// Make this the default build command.
-			"isBuildCommand": true,
-			// Show the output window only if unrecognized errors occur.
-			"showOutput": "silent",
-			// Use the standard less compilation problem matcher.
-			"problemMatcher": "$lessCompile"
-		}
-	]
+    "version": "0.1.0",
+    "command": "gulp",
+    "isShellCommand": true,
+    "tasks": [
+        {
+            "taskName": "default",
+            "isBuildCommand": true,
+            "showOutput": "always",
+            "isWatching": true
+        }
+    ]
 }
-*/
-
+**/
 // Uncomment the following section to use jake to build a workspace
 // cloned from https://github.com/Microsoft/TypeScript.git
 /*
