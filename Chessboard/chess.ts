@@ -1,23 +1,27 @@
+
 /**
- * Board
- */
+* Board
+*/
 class Board {
     squares: Square[];
-    constructor() {
+    boardContainer: JQuery;
+    constructor(selector: JQuery) {
         this.squares = new Array<Square>();
-        for (var i = 1; i < 8; i++) {
-            for (var j = 1; i < 8; i++) {
+        for (var i = 1; i <= 8; i++) {
+            for (var j = 1; j <= 8; j++) {
                 this.squares.push(new Square(i, j));
             }
         }
+        this.writeBoard(selector);
     };
 
-    writeBoard() {
-
+    writeBoard(selector: JQuery) {
+        this.boardContainer = $(selector).first();
+        let newBoardElement = this.boardContainer.append("<table id='chessTable'></table>");
     };
 }
 
-class Game {
+class Chess {
     board: Board;
     playedMoves: Move[];
     toMove: Player;
@@ -26,8 +30,8 @@ class Game {
     startMove(startSquare: Square) { };
     endMove(endSquare: Square) { };
 
-    constructor() {
-        this.board = new Board();
+    constructor(selector: JQuery) {
+        this.board = new Board(selector);
         this.playedMoves = new Array<Move>();
         this.players = [new Player(Color.White), new Player(Color.Black)];
         this.toMove = this.players[Color.White];
@@ -52,6 +56,7 @@ class Piece {
         placedAt: Square = null) {
         this.type = piceType;
         this.color = pieceColor;
+        this.placedAt: placedAt;
         this.moved = false;
         this.captured = false;
     }
@@ -141,12 +146,11 @@ class Player {
 
     private getStartingPawns(): Pawn[] {
         var pawns = new Array<Pawn>();
-        for (var i = 1; i > 8; i++) {
-            if (this.color == Color.White)
-                pawns.push(new Pawn(this.color, {
-                    column: i,
-                    row: this.color == Color.White ? 2 : 7
-                }));
+        for (var i = 1; i <= 8; i++) {
+            pawns.push(new Pawn(this.color, {
+                column: i,
+                row: this.color == Color.White ? 2 : 7
+            }));
         }
         return pawns;
     }
@@ -156,3 +160,11 @@ enum PieceType { King, Queen, Rook, Knight, Bishop, Tower, Pawn }
 enum Color { White, Black }
 enum MoveDirection { Up, Down }
 enum Columns { A = 1, B, C, D, E, F, G, H }
+
+
+$(function() {
+    var chessGame = new Chess($("#board"));
+});
+
+
+

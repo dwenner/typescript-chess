@@ -1,7 +1,16 @@
 {
    "compilerOptions": {
         "target": "es5",
-        "module": "amd",
-        "sourceMap": true
-    }
+        "module": "commonjs",
+        "sourceMap": true,
+        "rootDir": ".",
+        "outDir": "app"        
+    },
+    "compileOnSave": true,
+    "exclude": [
+        "node_modules",
+        "typings/main.d.ts",
+        "typings/main"
+    ]
+    
 }
