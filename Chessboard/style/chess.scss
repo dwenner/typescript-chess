@@ -1,0 +1,16 @@
+@import "variables";
+
+#chessTable {
+    border-spacing: 0;
+    border: 1px solid $dark;
+    width: $board-size;
+    height: $board-size;
+    
+    .chess-black {
+        background-color: $dark;
+    }
+    .chess-square {
+        width: $square-size;
+        height: $square-size;
+    }
+}
