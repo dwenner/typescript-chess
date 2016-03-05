@@ -8,12 +8,16 @@
     
     .chess-black {
         background-color: $dark;
+    }   
+    .chess-white {
+        background-color: $light;
     }
     .chess-square {
         width: $square-size;
         height: $square-size;
         text-align: center;
-        font-size: 4em;
+        padding: 0;
+        
         &.active {
             background-color: $active;
         }
@@ -23,6 +27,10 @@
         font-family: 'Arial Unicode MS','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: black;
         cursor: pointer;
+        width: 100%;
+        height: 100%;
+        display: block;
+        font-size: 4em;
     } 
    
 }
