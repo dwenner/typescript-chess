@@ -11,6 +11,22 @@
 
 
 {
+    "version": "0.1.0",
+    "command": "gulp",
+    "isShellCommand": true,
+    "tasks": [
+         {
+            "taskName": "default",
+            "isBuildCommand": true,
+            "showOutput": "always",
+            "isWatching": true
+        }
+    ]
+}
+
+
+/*
+{
 	"version": "0.1.0",
 
 	// The command is tsc. Assumes that tsc has been installed using npm install -g typescript
@@ -29,23 +45,11 @@
 	// in the output.
 	"problemMatcher": "$tsc"
 }
+*/
 
 
-/**
-{
-    "version": "0.1.0",
-    "command": "gulp",
-    "isShellCommand": true,
-    "tasks": [
-        {
-            "taskName": "default",
-            "isBuildCommand": true,
-            "showOutput": "always",
-            "isWatching": true
-        }
-    ]
-}
-**/
+
+
 // Uncomment the following section to use jake to build a workspace
 // cloned from https://github.com/Microsoft/TypeScript.git
 /*

@@ -1,38 +1,40 @@
 'use strict';
 
 var gulp = require('gulp');
+var watch = require('gulp-watch');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 var typescript = require('gulp-tsc');
+var ts = require('gulp-typescript');
 
 var path = {
-    style: './style/',
+    style: 'style/',
     app: 'app',
     scss: "**/*.scss",
-    typescript: '*.ts'
+    typescript: '*.ts',
+    base: '.',
+    
+    
 };
 
-var tsOptions = {
-    outDir: path.app,
-    sourceMap: true,
-    sourceRoot: path
-};
+var tsOptions = ts.createProject('./tsconfig.json');
 
 gulp.task('sass', function () {
-    return gulp.src(path.style + path.scss)
+    var cssPath = path.style + path.scss
+    return gulp.src(cssPath)
+        //.pipe(watch(cssPath))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(path.style));
 });
 
-gulp.task('typescript', function () { //typescript not quite working in gulp for now.
-    return gulp.src(path.typescript)
-        .pipe(typescript(tsOptions))
+gulp.task('typescript', function () {
+    return gulp.src([path.typescript, 'typings/browser/**/*.ts'],{ base: path.base })
+        .pipe(sourcemaps.init())
+        .pipe(ts(tsOptions))
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest(path.app));
 });
 
-gulp.task('default', function () {
-    gulp.watch(path.stylePath + path.scss, ['sass']);
-    //gulp.watch(path.typescript, ['typescript']);
-});
+gulp.task('default', ['typescript','sass']);

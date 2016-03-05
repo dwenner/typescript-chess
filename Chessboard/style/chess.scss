@@ -12,5 +12,17 @@
     .chess-square {
         width: $square-size;
         height: $square-size;
+        text-align: center;
+        font-size: 4em;
+        &.active {
+            background-color: $active;
+        }
     }
+       
+    .chess-piece {
+        font-family: 'Arial Unicode MS','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: black;
+        cursor: pointer;
+    } 
+   
 }
