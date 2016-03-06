@@ -5,14 +5,11 @@
 class Board {
     squares: Square[];
     boardContainer: JQuery;
-    constructor(selector: JQuery, startingPieces: Piece[]) {
-        this.writeBoard(selector);
-        this.writePieces(startingPieces);
-    };
+    statusContainer: JQuery;
 
     markActive(square: Square) {
+        this.removeActive();
         var active = 'active';
-        this.boardContainer.find('.chess-square').removeClass(active)
         var jqSquare = this.boardContainer.find(square.getSelector());
         jqSquare.addClass(active);
     }
@@ -31,8 +28,7 @@ class Board {
         });
     };
 
-    writeBoard(selector: JQuery): JQuery {
-        this.boardContainer = $(selector).first();
+    writeBoard(): JQuery {
         let newBoardElement = this.boardContainer.html("<table id='chessTable'><thead id='chessHead'></thead></thead><tbody id='chessBody'></tbody><tfoot id='chessFoot'></tfoot></table>");
         let chessBody = $('#chessBody');
         this.squares = new Array<Square>();
@@ -42,11 +38,35 @@ class Board {
             for (var j = 1; j <= 8; j++) {
                 let square = new Square(i, j);
                 this.squares.push(square);
-                $('#' + rowString).append(`<td id='${square.getName()}' data-row='${square.row}' data-col='${square.column}' class='chess-square chess-${square.getColorName().toLocaleLowerCase()}'></td>`);
+                $('#' + rowString).append(`<td id='${square.getName()}' data-row='${square.row}' data-col='${square.column}' class='chess-square chess-${this.colorClass(square)}'></td>`);
             }
         }
         return newBoardElement;
     };
+
+    writeStatus(playedMoves: Move[], toMove: Player): JQuery {
+        var moveList = this.statusContainer.find('#moves').html('');;
+        playedMoves.forEach((move) => {
+            moveList.append(`<li>${move.getNotation()}</li>`);
+        });
+
+        var colorClass = `chess-${this.colorClass(toMove)}`;
+        this.statusContainer.find('#nextMove').removeClass().addClass(colorClass);
+        return this.statusContainer;
+    }
+
+    constructor(boardSelector: JQuery, statusSelector: JQuery, startingPieces: Piece[]) {
+        this.boardContainer = boardSelector.first();
+        this.statusContainer = statusSelector.first();
+        this.writeBoard();
+        this.writePieces(startingPieces);
+    };
+
+    private colorClass<T>(T: IHasColor): string { return T.getColorName().toLowerCase(); }
+}
+
+interface IHasColor {
+    getColorName(): string;
 }
 
 class Chess {
@@ -60,27 +80,18 @@ class Chess {
     startMove(piece: Piece) {
         this.board.markActive(piece.placedAt);
         piece.selected = true;
-        this.activeMove = {
-            start: piece.placedAt,
-            piece: piece,
-            end: null,
-            isComplete: false
-        };
+        this.activeMove = new Move(piece.placedAt, piece);
     };
-    endMove(piece: Piece, newSquare: Square) : boolean {
-        if (!newSquare && !piece) return false;
+    endMove(piece: Piece, newSquare: Square, piceToCapture: Piece): boolean {
+        if (!newSquare && !piece && this.activeMove == null) return false;
+        this.activeMove.completeMove(newSquare, piceToCapture);
+        this.playedMoves.push(this.activeMove);
         this.activeMove = null;
         this.board.removeActive();
-        this.playedMoves.push({
-            start: piece.placedAt,
-            piece: piece,
-            end: newSquare,
-            isComplete: true
-        });
-        piece.placedAt  = newSquare;
+        piece.placedAt = newSquare;
         piece.moved = true;
         piece.selected = false;
-        var colorToMoveNext = this.toMove.color === Color.White ? Color.Black : Color.White; 
+        var colorToMoveNext = this.toMove.color === Color.White ? Color.Black : Color.White;
         this.toMove = this.players[colorToMoveNext];
         return true;
     };
@@ -94,6 +105,7 @@ class Chess {
 
     updateBoard(): void {
         this.board.writePieces(this.getPieces().filter((p) => !p.captured));
+        this.board.writeStatus(this.playedMoves, this.toMove);
     };
 
     pieceClick(event: JQueryEventObject): boolean {
@@ -114,16 +126,16 @@ class Chess {
     };
 
     squareClick(event: JQueryEventObject): boolean {
-        
-        if(event.currentTarget !== event.target) return false;
+
+        if (event.currentTarget !== event.target) return false;
         var squareId = event.target.id;
         var pieces = this.getPieces();
         var anySelected = this.anySelected(pieces);
-        
+
         var square = this.board.squares.find((s) => s.getName() == event.target.id)
-        if (anySelected && this.activeMove) {
+        if (anySelected && this.activeMove) { //Todo: This will not work for en passant as you are not clicking a piece. 
             var currentMove = this.activeMove;
-            this.endMove(currentMove.piece, square);
+            this.endMove(currentMove.piece, square, null);
         }
         this.updateBoard();
         return false;
@@ -137,12 +149,12 @@ class Chess {
             this.squareClick(eventObject);
         });
     };
-    constructor(selector: JQuery) {
+    constructor(selector: JQuery, statusSelector: JQuery) {
 
         this.players = [new Player(Color.White), new Player(Color.Black)];
         this.toMove = this.players[Color.White];
         this.playedMoves = new Array<Move>();
-        this.board = new Board(selector, this.getPieces());
+        this.board = new Board(selector, statusSelector, this.getPieces());
         this.bindEvents(selector);
         this.selector = selector;
     };
@@ -150,7 +162,7 @@ class Chess {
         if (pieceToCapture.color === pieceToMove.color && this.playedMoves[this.playedMoves.length])
             return false;
         pieceToCapture.captured = true;
-        this.endMove(pieceToMove, pieceToCapture.placedAt);
+        this.endMove(pieceToMove, pieceToCapture.placedAt, pieceToCapture);
         return false;
     };
     private anySelected(pieces: Piece[]): boolean {
@@ -158,7 +170,7 @@ class Chess {
     }
     private getLastMove(): Move {
         var length = this.playedMoves.length;
-        if (length == 0) return null;
+        if (length === 0) return null;
         return this.playedMoves[length - 1];
     }
 
@@ -172,28 +184,35 @@ class Move {
     start: Square;
     end: Square;
     piece: Piece;
+    capture: Piece;
     isComplete: boolean;
+
+    getNotation(): string {
+        return this.piece.symbol + this.start.getName() + (this.capture ? 'x' + this.capture.symbol : '') + ' ' + this.end.getName();
+    }
+
+    completeMove(end: Square, capture: Piece): Move {
+        this.isComplete = true;
+        this.capture = capture;
+        this.end = end;
+        return this;
+    }
+
+    constructor(start: Square, piece: Piece) {
+        this.isComplete = false;
+        this.capture = null;
+        this.piece = piece;
+        this.start = start;
+    }
+
 }
 
 /**
  * Piece
  *
  */
-class Piece {
-    constructor(
-        piceType: PieceType,
-        pieceColor: Color,
-        startAt: Square,
-        symbol: string) {
-        this.type = piceType;
-        this.color = pieceColor;
-        this.placedAt = startAt;
-        this.startAt = startAt;
-        this.symbol = symbol;
-        this.moved = false;
-        this.captured = false;
-        this.selected = false;
-    }
+class Piece implements IHasColor {
+
     color: Color;
     placedAt: Square;
     startAt: Square;
@@ -209,6 +228,21 @@ class Piece {
 
     getColorName(): string {
         return Color[this.color];
+    }
+
+    constructor(
+        piceType: PieceType,
+        pieceColor: Color,
+        startAt: Square,
+        symbol: string) {
+        this.type = piceType;
+        this.color = pieceColor;
+        this.placedAt = startAt;
+        this.startAt = startAt;
+        this.symbol = symbol;
+        this.moved = false;
+        this.captured = false;
+        this.selected = false;
     }
 }
 
@@ -260,7 +294,7 @@ class Pawn extends Piece {
 /**
  * Square
  */
-class Square {
+class Square implements IHasColor {
     row: number;
     column: Columns;
 
@@ -295,13 +329,17 @@ class Square {
 /**
  * Player
  */
-class Player {
+class Player implements IHasColor {
     color: Color;
     direction: MoveDirection;
     pieces: Piece[];
 
     isWhite(): boolean {
-        return this.color == Color.White;
+        return this.color === Color.White;
+    }
+
+    getColorName(): string {
+        return Color[this.color];
     }
 
     constructor(color: Color) {
@@ -336,7 +374,7 @@ enum Columns { A = 1, B, C, D, E, F, G, H }
 
 
 $(function() {
-    var chessGame = new Chess($("#board"));
+    var chessGame = new Chess($("#board"), $("#status"));
 });
 
 
