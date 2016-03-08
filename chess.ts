@@ -275,10 +275,10 @@ class Knight extends Piece {
     }
 }
 
-class Tower extends Piece {
+class Rook extends Piece {
     constructor(pieceColor: Color, placedAt: Square) {
         var symbol = pieceColor === Color.White ? '♖' : '♜';
-        super(PieceType.Knight, pieceColor, placedAt, symbol);
+        super(PieceType.Rook, pieceColor, placedAt, symbol);
     }
 }
 
@@ -347,8 +347,8 @@ class Player implements IHasColor {
         this.direction = color == Color.White ? MoveDirection.Up : MoveDirection.Down;
         let startingRow = this.isWhite() ? 1 : 8;
         this.pieces = new Array<Piece>(
-            new Tower(color, new Square(startingRow, Columns.A)),
-            new Tower(color, new Square(startingRow, Columns.H)),
+            new Rook(color, new Square(startingRow, Columns.A)),
+            new Rook(color, new Square(startingRow, Columns.H)),
             new Knight(color, new Square(startingRow, Columns.G)),
             new Bishop(color, new Square(startingRow, Columns.C)),
             new Bishop(color, new Square(startingRow, Columns.F)),
