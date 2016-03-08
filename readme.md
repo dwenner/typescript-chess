@@ -34,5 +34,6 @@ gulp
 ## Built with
 
 * Typescript 1.8
+* Sass
 * JQuery
 * Visual Studio Code
