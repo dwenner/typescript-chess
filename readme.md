@@ -8,7 +8,7 @@ You can move and capture pieces, but moves are not validated.
 
 The Javascript is compiled as ES2015 to avoid need for shims for now. From quick tests it only runs in new versions of Chrome. 
 
-You can view a [runnable version of the repository here.]('https://cdn.rawgit.com/dwenner/typescript-chess/master/index.html')  
+You can view a [runnable version of the repository here.](https://cdn.rawgit.com/dwenner/typescript-chess/master/index.html)  
 
 ## Todo
 
