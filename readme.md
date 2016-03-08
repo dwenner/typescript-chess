@@ -4,9 +4,9 @@ A simple chess game written as an exercise to learn TypeScript and some assosiat
 
 You can move and capture pieces, but moves are not validated.
 
-## Run it
+## [Run it]('https://cdn.rawgit.com/dwenner/typescript-chess/master/index.html') 
 
-The Javascript is compiled as ES2015 to avoid need for shims for now. From quick tests it only runs in new versions of Chrome.   
+The Javascript is compiled as ES2015 to avoid need for shims for now. From quick tests it only runs in new versions of Chrome. 
 
 ## Todo
 
