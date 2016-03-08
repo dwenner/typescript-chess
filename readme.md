@@ -17,6 +17,8 @@ You can view a [runnable version of the repository here.](https://cdn.rawgit.com
 * Casteling
 * Validate moves
 * Browser compability
+* Reset board
+* Undo moves
 
 ## Setup developer enviroment
 
