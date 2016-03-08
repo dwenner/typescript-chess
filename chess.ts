@@ -72,7 +72,7 @@ interface IHasColor {
 class Chess {
     board: Board;
     playedMoves: Move[];
-    activeMove; Move;
+    activeMove: Move;
     toMove: Player;
     players: Player[];
     selector: JQuery;
