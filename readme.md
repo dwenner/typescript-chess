@@ -14,7 +14,7 @@ You can view a [runnable version of the repository here.](https://cdn.rawgit.com
 
 * Check
 * En passant
-* Casteling
+* Castling
 * Validate moves
 * Browser compability
 * Reset board
