@@ -1,40 +1,50 @@
-'use strict';
+import gulp from 'gulp';
+import watch from 'gulp-watch';
+import sassCompiler from 'gulp-dart-sass';
+import sourcemaps from 'gulp-sourcemaps';
+import tsCompiler from 'gulp-typescript';
 
-var gulp = require('gulp');
-var watch = require('gulp-watch');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
-var typescript = require('gulp-tsc');
-var ts = require('gulp-typescript');
-
-var path = {
+const path = {
     style: 'style/',
     app: 'app',
     scss: "**/*.scss",
+    lib: 'lib',
     typescript: '*.ts',
     base: '.',
-    
-    
+    jQuery: 'node_modules/jquery/dist/**'
 };
 
-var tsOptions = ts.createProject('./tsconfig.json');
+const tsProject = tsCompiler.createProject('./tsconfig.json');
 
-gulp.task('sass', function () {
-    var cssPath = path.style + path.scss
-    return gulp.src(cssPath)
-        //.pipe(watch(cssPath))
+const compileTs = () => {
+    return gulp.src(path.typescript, { base: path.base })
         .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest(path.style));
-});
-
-gulp.task('typescript', function () {
-    return gulp.src([path.typescript, 'typings/browser/**/*.ts'],{ base: path.base })
-        .pipe(sourcemaps.init())
-        .pipe(ts(tsOptions))
-        .pipe(sourcemaps.write())
+        .pipe(tsProject())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(path.app));
-});
+}
 
-gulp.task('default', ['typescript','sass']);
+const compileSass = () => {
+    const cssPath = path.style + path.scss
+    return gulp.src(cssPath)
+        .pipe(sourcemaps.init())
+        .pipe(sassCompiler().on('error', sassCompiler.logError))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(path.style));
+}
+
+const copyJquery = () => {
+    return gulp.src(path.jQuery)
+        .pipe(gulp.dest(path.lib, { base: path.base }));
+}
+
+const typescript = gulp.series(compileTs);
+const sass = gulp.series(compileSass);
+const defaultTasks = gulp.parallel(typescript, sass, copyJquery);
+
+export {
+    typescript,
+    sass
+}
+
+export default defaultTasks;

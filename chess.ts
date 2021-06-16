@@ -1,7 +1,7 @@
 'use strict'
 /**
-* Board
-*/
+ * Board
+ */
 class Board {
     squares: Square[];
     boardContainer: JQuery;
@@ -108,7 +108,7 @@ class Chess {
         this.board.writeStatus(this.playedMoves, this.toMove);
     };
 
-    pieceClick(event: JQueryEventObject): boolean {
+    pieceClick(event: JQuery.TriggeredEvent): boolean {
         var pieceId = event.target.id;
         var pieces = this.getPieces();
         var anySelected = this.anySelected(pieces);
@@ -125,7 +125,7 @@ class Chess {
         return false;
     };
 
-    squareClick(event: JQueryEventObject): boolean {
+    squareClick(event: JQuery.TriggeredEvent): boolean {
 
         if (event.currentTarget !== event.target) return false;
         var squareId = event.target.id;
@@ -142,10 +142,10 @@ class Chess {
     }
 
     bindEvents(selector: JQuery): void {
-        selector.on('click', '.chess-piece', (eventObject: JQueryEventObject) => {
+        selector.on('click', '.chess-piece', (eventObject) => {
             this.pieceClick(eventObject);
         });
-        selector.on('click', '.chess-square', (eventObject: JQueryEventObject) => {
+        selector.on('click', '.chess-square', (eventObject) => {
             this.squareClick(eventObject);
         });
     };
@@ -373,8 +373,8 @@ enum MoveDirection { Up = 1, Down = -1 }
 enum Columns { A = 1, B, C, D, E, F, G, H }
 
 
-$(function() {
-    var chessGame = new Chess($("#board"), $("#status"));
+$(function () {
+    const chessGame = new Chess($("#board"), $("#status"));
 });
 
 
